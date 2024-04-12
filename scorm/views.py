@@ -122,14 +122,35 @@ def scorm_dashboard_view(request):
     return render(request, 'scorm/scorm-dashboard.html', {'scorms': scorms})
 
 
+def test_dropdown(request):
+    scorms = ScormAsset.objects.all()
+    form = AssignSCORMForm()
+    return render(request, 'scorm/test_dropdown.html', {'scorms': scorms, 'form': form})
+
 def assign_scorm(request, client_id):
+    client = get_object_or_404(Client, pk=client_id)
     if request.method == 'POST':
         form = AssignSCORMForm(request.POST)
         if form.is_valid():
-            assignment = form.save(commit=False)
-            assignment.client_id = client_id
-            assignment.save()
-            return JsonResponse({'success': True})
+            client = Client.objects.get(pk=client_id)  # Get the client object
+            selected_scorms = form.cleaned_data['scorms']
+            number_of_seats = form.cleaned_data['number_of_seats']
+
+            for scorm in selected_scorms:
+                assignment = ScormAssignment(
+                    scorm_asset=scorm,
+                    client=client,
+                    number_of_seats=number_of_seats
+                )
+                assignment.save()
+
+            print(f'Successfully saved ScormAssignment for client_id={client_id}')  # Debugging line
+
+            # Success! Redirect to the client details page
+            return redirect('client-details', client_id=client_id) 
+        else:
+            print(f'Form errors: {form.errors}')  # Debugging line
     else:
+        # GET request (Display an empty form)
         form = AssignSCORMForm()
-    return render(request, 'clients/client_details.html', {'form': form})
+    return render(request, 'clients/client_details.html', {'form': form, 'client': client}) 

@@ -1,5 +1,6 @@
 from django import forms
 from .models import ScormAsset, ScormAssignment
+from clients.models import Client
 
 class ScormUploadForm(forms.ModelForm):
     class Meta:
@@ -8,7 +9,8 @@ class ScormUploadForm(forms.ModelForm):
         widgets = {'scorm_file': forms.FileInput()}
 
 class AssignSCORMForm(forms.ModelForm):
-    scorm_asset = forms.ModelMultipleChoiceField(queryset=ScormAssignment.objects.all(), widget=forms.CheckboxSelectMultiple)
+    scorms = forms.ModelMultipleChoiceField(queryset=ScormAsset.objects.all(), widget=forms.CheckboxSelectMultiple)
+    client = forms.ModelChoiceField(queryset=Client.objects.all(), widget=forms.HiddenInput)
     class Meta:
         model = ScormAssignment
-        fields = ['scorm_asset', 'number_of_seats']
+        fields = ['number_of_seats']

@@ -105,9 +105,10 @@
     <div id="editUserModal" tabindex="-1" aria-hidden="true" class="fixed top-0 left-0 right-0 z-50 items-center justify-center hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
         <div class="relative w-full max-w-2xl max-h-full">
             <!-- Modal content -->
-            <form class="relative bg-white rounded-lg shadow dark:bg-gray-700" method="post">
+            <form class="relative bg-white rounded-lg shadow dark:bg-gray-700" method="post" action="{% url 'assign-scorm' client_id=client.id %}">
                 <!-- Modal header -->
                 {% csrf_token %}
+                <input type="hidden" name="client" value="{{ client.id }}">
                 <div class="flex items-start justify-between p-4 border-b rounded-t dark:border-gray-600">
                     <h3 class="text-xl font-semibold text-gray-900 dark:text-white">
                         Assign SCORM
@@ -142,12 +143,14 @@
                                     </div>
                                     </div>
                                     <ul class="h-48 px-3 pb-3 overflow-y-auto text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownSearchButton">
-                                    <li>
-                                        <div class="flex items-center ps-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
-                                        <input id="checkbox-item-11" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500">
-                                        <label for="checkbox-item-11" class="w-full py-2 ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">Bonnie Green</label>
-                                        </div>
-                                    </li>
+                                    {% for scorm in scorms %}
+                                        <li>
+                                            <div class="flex items-center ps-2 rounded hover:bg-gray-100 dark:hover:bg-gray-600">
+                                                <input id="checkbox-item-{{ forloop.counter }}" type="checkbox" value="{{ scorm.id }}" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-700 dark:focus:ring-offset-gray-700 focus:ring-2 dark:bg-gray-600 dark:border-gray-500 scorm-checkbox"> 
+                                                <label for="checkbox-item-{{ forloop.counter }}" class="w-full py-2 ms-2 text-sm font-medium text-gray-900 rounded dark:text-gray-300">{{ scorm.title }}</label>
+                                            </div>
+                                        </li>
+                                    {% endfor %}
                                     </ul>
                                     <a href="#" class="flex items-center p-3 text-sm font-medium text-red-600 border-t border-gray-200 rounded-b-lg bg-gray-50 dark:border-gray-600 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 dark:text-red-500 hover:underline">
                                     <svg class="w-4 h-4 me-2" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
@@ -158,8 +161,8 @@
                             </div>
                         </div>
                         <div class="col-span-6 sm:col-span-3">
-                            <label for="seats" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"></label>
-                            <input type="number" name="seats" id="seats" min="1" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="1" required="">
+                            <label for="id_number_of_seats" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"></label>
+                            <input type="number" name="number_of_seats" id="id_number_of_seats" min="1" class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-600 focus:border-blue-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="1" required="">
                         </div>
                     </div>
                 </div>
@@ -171,5 +174,32 @@
         </div>
     </div>
 </div>
+
+<script>
+    $(document).on('click', '#dropdownActionButton', function() { 
+    if ($('#dropdownSearch').find('li').length == 0) {
+        $.ajax({
+            url: '/scorm/test_dropdown/', 
+            type: 'GET',
+            dataType: 'html', // Expecting HTML content
+            success: function(data) {
+                // Replace the dropdown's content
+                $('#dropdownSearch ul').html(data); 
+
+                // Show the dropdown
+                $('#dropdownSearch').dropdown('show');
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                // Handle the error
+                console.error('AJAX request failed:', textStatus, errorThrown);
+            }
+        });
+    } else {
+        // If the dropdown is already filled, just show it
+        $('#dropdownSearch').dropdown('show');
+    }
+});
+</script>
+
 
 {% endblock %}
