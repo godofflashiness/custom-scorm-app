@@ -26,9 +26,3 @@ def admin_logout_view(request):
     logout(request)
     return redirect('admin-login')  
 
-def admin_scorm_dashboard_view(request):
-    if not request.user.is_authenticated:
-        return redirect('admin-login')
-    if not request.user.is_admin:  
-        return redirect('client-dashboard')  
-    return render(request, 'scorm/scorm-dashboard.html')
