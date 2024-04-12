@@ -1,19 +1,33 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib import messages
-from .forms import ScormUploadForm
-from .models import ScormAsset, ScormResponse
-import os
-import requests
 import json
 import logging
+import os
+
 from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ObjectDoesNotExist
+from django.shortcuts import redirect, render
+import requests
+
+from .forms import ScormUploadForm
+from .models import ScormAsset, ScormResponse
 
 logger = logging.getLogger(__name__)
 
 @login_required
 def upload_scorm_view(request):
+    """
+    View function for uploading a SCORM file.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+
+    Raises:
+        Exception: If an error occurs during the file upload process.
+    """
     form = ScormUploadForm(request.POST or None, request.FILES or None)
     if request.method == 'POST':
         if form.is_valid():
@@ -71,6 +85,21 @@ def upload_scorm_view(request):
     return render(request, 'scorm/upload_scorm.html', {'form': form})
 
 def scorm_dashboard_view(request):
+    """
+    Renders the SCORM dashboard view.
+
+    This view requires the user to be authenticated. If the user is not authenticated,
+    they will be redirected to the admin login page.
+
+    The function fetches all SCORM assets from the database and renders the 'scorm-dashboard.html'
+    template with the fetched SCORM assets.
+
+    Returns:
+        A rendered HTML response containing the SCORM dashboard view.
+
+    Raises:
+        ObjectDoesNotExist: If there is an error fetching the SCORM assets from the database.
+    """
     if not request.user.is_authenticated:
         return redirect('admin-login')
     

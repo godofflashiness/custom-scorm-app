@@ -1,9 +1,20 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
-from .forms import AdminLoginForm  
+from django.contrib.auth import authenticate, login, logout
+from django.shortcuts import redirect, render
+
+from .forms import AdminLoginForm
 
 def admin_login_view(request):
+    """
+    View function for handling the admin login.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+
+    """
     if request.method == 'POST':
         form = AdminLoginForm(request.POST)
         if form.is_valid():
@@ -23,6 +34,15 @@ def admin_login_view(request):
     return render(request, 'coreadmin/login.html', {'form': form})
 
 def admin_logout_view(request):
+    """
+    Logs out the admin user and redirects to the admin login page.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: A redirect response to the admin login page.
+    """
     logout(request)
-    return redirect('admin-login')  
+    return redirect('admin-login')
 

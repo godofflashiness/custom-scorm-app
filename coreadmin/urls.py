@@ -1,6 +1,6 @@
-from django.urls import path, include
 from . import views
 from clients import views as client_views
+from django.urls import include, path
 from scorm import views as scorm_views
 
 urlpatterns = [

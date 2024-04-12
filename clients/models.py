@@ -1,6 +1,18 @@
 from django.db import models
 
 class Client(models.Model):
+    """
+    Represents a client in the system.
+
+    Attributes:
+        first_name (str): The first name of the client.
+        last_name (str): The last name of the client.
+        contact_email (str): The email address of the client.
+        contact_phone (str, optional): The phone number of the client. Can be null or blank.
+        company (str): The company name of the client.
+        created_at (datetime): The date and time when the client was created.
+        scorm_count (int): The number of SCORM objects associated with the client.
+    """
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     contact_email = models.EmailField()
@@ -8,3 +20,6 @@ class Client(models.Model):
     company = models.CharField(max_length=100)
     created_at = models.DateTimeField(auto_now_add=True)
     scorm_count = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f'{self.first_name} {self.last_name}'

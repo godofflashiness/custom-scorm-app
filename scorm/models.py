@@ -2,6 +2,22 @@ from django.db import models
 from clients.models import Client
 
 class ScormAsset(models.Model):
+    """
+    Represents a SCORM asset.
+
+    Attributes:
+        title (str): The title of the asset.
+        description (str): The description of the asset.
+        category (str): The category of the asset.
+        duration (datetime.timedelta): The duration of the asset.
+        upload_date (datetime.datetime): The date and time when the asset was uploaded.
+        access_validity_period (int): The validity period of the asset in days.
+        license_seats (int): The number of license seats for the asset.
+        is_deleted (bool): Indicates whether the asset is deleted or not.
+        scorm_id (int): The unique identifier for the SCORM asset.
+        clients (ManyToManyField): The clients associated with the asset.
+        scorm_file (FileField): The uploaded SCORM file.
+    """
     title = models.CharField(max_length=200)
     description = models.TextField()
     category = models.CharField(max_length=50, blank=True)
@@ -14,7 +30,28 @@ class ScormAsset(models.Model):
     clients = models.ManyToManyField(Client) 
     scorm_file = models.FileField(upload_to='scorm_uploads_zipped/')
 
+    def __str__(self):
+        return self.title
+
 class ScormResponse(models.Model):
+    """
+    Represents a response to a SCORM asset.
+
+    Attributes:
+        asset (ScormAsset): The SCORM asset associated with the response.
+        status (bool): The status of the response.
+        message (str): The message associated with the response.
+        scormdir (str): The directory of the SCORM package.
+        full_path_name (str): The full path name of the response.
+        size (int): The size of the response.
+        zippath (str): The path of the ZIP file.
+        zipfilename (str): The name of the ZIP file.
+        extension (str): The extension of the response file.
+        filename (str): The name of the response file.
+        reference (str): The reference of the response.
+        scorm (str): The SCORM version.
+
+    """
     asset = models.OneToOneField(ScormAsset, on_delete=models.CASCADE, related_name='response')
     status = models.BooleanField(null=True)
     message = models.TextField(null=True)
@@ -27,3 +64,6 @@ class ScormResponse(models.Model):
     filename = models.TextField(null=True)
     reference = models.TextField(null=True)
     scorm = models.CharField(max_length=50, null=True)
+
+    def __str__(self):
+        return self.asset.title
