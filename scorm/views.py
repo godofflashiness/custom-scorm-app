@@ -45,37 +45,45 @@ def upload_scorm_view(request):
 
                 response = requests.post(settings.API_URL, headers=headers, files=data)
 
-                if response.headers['content-type'] == 'application/json':
-                    logger.debug('Response: %s', json.dumps(response.json(), indent=4))
+                # Check if the response has a 'content-type' header
+                content_type = response.headers.get('content-type')
+                if content_type == 'application/json':
+                    try:
+                        response_data = response.json()
+                        logger.debug('Response: %s', json.dumps(response_data, indent=4))
+                    except json.JSONDecodeError:
+                        logger.error('Error decoding JSON from response')
+                        response_data = None
                 else:
                     logger.debug('Response: %s', response.content)
+                    response_data = None
 
-                if response.status_code == 200:
+                if response.status_code == 200 and response_data is not None:
                     logger.info('File uploaded successfully')
 
-                    response_data = response.json()
+                    scorm_id = response_data.get('scorm')
+                    if scorm_id is not None:
+                        asset.scorm_id = int(scorm_id)
+                        asset.save() 
 
-                    asset.scorm_id = int(response_data.get('scorm'))
-
-                    asset.save() 
-
-                    ScormResponse.objects.create(
-                        asset=asset,
-                        status=response_data.get('status'),
-                        message=response_data.get('message'),
-                        scormdir=response_data.get('scormdir'),
-                        full_path_name=response_data.get('full_path_name'),
-                        size=response_data.get('size'),
-                        zippath=response_data.get('zippath'),
-                        zipfilename=response_data.get('zipfilename'),
-                        extension=response_data.get('extension'),
-                        filename=response_data.get('filename'),
-                        reference=response_data.get('reference'),
-                        scorm=response_data.get('scorm'),
-                    )
+                        ScormResponse.objects.create(
+                            asset=asset,
+                            status=response_data.get('status'),
+                            message=response_data.get('message'),
+                            scormdir=response_data.get('scormdir'),
+                            full_path_name=response_data.get('full_path_name'),
+                            size=response_data.get('size'),
+                            zippath=response_data.get('zippath'),
+                            zipfilename=response_data.get('zipfilename'),
+                            extension=response_data.get('extension'),
+                            filename=response_data.get('filename'),
+                            reference=response_data.get('reference'),
+                            scorm=response_data.get('scorm'),
+                        )
                 else:
                     logger.error('Failed to upload file. Status code: %s', response.status_code)
-                    logger.error('Response: %s', response.text)
+                    if response_data is not None:
+                        logger.error('Response: %s', response.text)
 
                 return redirect('scorm-dashboard')  
             except Exception as e:
