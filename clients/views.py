@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 
 from .forms import ClientCreationForm, ClientUpdateForm
 from .models import Client
+from scorm.models import ScormAssignment
 
 def create_client_view(request):
     """
@@ -126,3 +127,22 @@ def get_client_details(request, client_id):
         'contact_phone': client.contact_phone,
     }
     return JsonResponse(data)
+
+def client_details_view(request, client_id):
+    """
+    View function for displaying the details of a client.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        client_id (int): The ID of the client to display details for.
+
+    Returns:
+        HttpResponse: The HTTP response object containing the rendered template.
+
+    Raises:
+        Http404: If the client with the specified ID does not exist.
+
+    """
+    client = get_object_or_404(Client, id=client_id)
+    assignments = ScormAssignment.objects.filter(client=client)
+    return render(request, 'clients/client_details.html', {'client': client, 'assignments': assignments})

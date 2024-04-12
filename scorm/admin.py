@@ -1,6 +1,7 @@
 from django.contrib import admin
 
-from .models import ScormAsset, ScormResponse
+from .models import ScormAsset, ScormResponse, ScormAssignment
 
 admin.site.register(ScormAsset)
 admin.site.register(ScormResponse)
+admin.site.register(ScormAssignment)

@@ -2,15 +2,18 @@ import json
 import logging
 import os
 
+
 from django.conf import settings
+from django.http import JsonResponse
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
-from django.shortcuts import redirect, render
+from django.shortcuts import redirect, render, get_object_or_404
 import requests
 
-from .forms import ScormUploadForm
-from .models import ScormAsset, ScormResponse
+from .forms import ScormUploadForm, AssignSCORMForm
+from .models import ScormAsset, ScormResponse, ScormAssignment
+from clients.models import Client
 
 logger = logging.getLogger(__name__)
 
@@ -117,3 +120,16 @@ def scorm_dashboard_view(request):
         messages.error(request, "Error fetching scorms")
         scorms = None
     return render(request, 'scorm/scorm-dashboard.html', {'scorms': scorms})
+
+
+def assign_scorm(request, client_id):
+    if request.method == 'POST':
+        form = AssignSCORMForm(request.POST)
+        if form.is_valid():
+            assignment = form.save(commit=False)
+            assignment.client_id = client_id
+            assignment.save()
+            return JsonResponse({'success': True})
+    else:
+        form = AssignSCORMForm()
+    return render(request, 'clients/client_details.html', {'form': form})

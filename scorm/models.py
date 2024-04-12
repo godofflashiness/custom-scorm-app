@@ -24,7 +24,6 @@ class ScormAsset(models.Model):
     duration = models.DurationField(blank=True, null=True)  
     upload_date = models.DateTimeField(auto_now_add=True)
     access_validity_period = models.IntegerField(default=365, blank=True)  
-    license_seats = models.IntegerField(blank=True, null=True) 
     is_deleted = models.BooleanField(default=False)
     scorm_id = models.IntegerField(unique=True, null=True)    
     clients = models.ManyToManyField(Client) 
@@ -67,3 +66,9 @@ class ScormResponse(models.Model):
 
     def __str__(self):
         return self.asset.title
+
+class ScormAssignment(models.Model):
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+    scorm_asset = models.ForeignKey(ScormAsset, on_delete=models.CASCADE)
+    date_assigned = models.DateTimeField(auto_now_add=True) 
+    number_of_seats = models.IntegerField(default=1)
