@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 
 class Client(models.Model):
     """
@@ -13,6 +14,8 @@ class Client(models.Model):
         created_at (datetime): The date and time when the client was created.
         scorm_count (int): The number of SCORM objects associated with the client.
     """
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True)
+
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     contact_email = models.EmailField()

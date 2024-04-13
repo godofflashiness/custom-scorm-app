@@ -143,7 +143,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'accounts.CustomUser'
 
 API_URL = os.getenv('API_URL')
-API_TOKEN = os.getenv('API_TOKEN')
+API_TOKEN1 = os.getenv('API_TOKEN1')
 
 LOGGING = {
     'version': 1,
@@ -160,3 +160,5 @@ LOGGING = {
         'level': 'DEBUG',
     },
 }
+
+MAX_UPLOAD_SIZE = 2147483648
