@@ -15,7 +15,7 @@ class Command(BaseCommand):
             admin_user = CustomUser.objects.create_user(
                 username=username,
                 password=password, 
-                is_admin=True
+                is_core_admin=True
             )
             self.stdout.write(self.style.SUCCESS(f'Admin user "{username}" created successfully'))
         else:

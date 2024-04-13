@@ -22,7 +22,7 @@ def admin_login_view(request):
             password = form.cleaned_data['password']
             user = authenticate(request, username=username, password=password)
             if user is not None:
-                if user.is_admin:  
+                if user.is_core_admin:  
                     login(request, user)
                     return redirect('scorm-dashboard')  
                 else:

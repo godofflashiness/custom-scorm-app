@@ -2,11 +2,16 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.contrib.auth.decorators import login_required
+
+from scorm.models import ScormAssignment
+from accounts.decorators import allowed_users
 
 from .forms import ClientCreationForm, ClientUpdateForm
 from .models import Client
-from scorm.models import ScormAssignment
 
+@login_required
+@allowed_users(allowed_roles=['coreadmin'])
 def create_client_view(request):
     """
     View function for creating a client.
@@ -21,21 +26,21 @@ def create_client_view(request):
         HttpResponse: The HTTP response object.
 
     """
-    if not request.user.is_admin:
-        return redirect('client-dashboard')  
     if request.method == 'POST':
         form = ClientCreationForm(request.POST)
-        print(form.errors)
         if form.is_valid():
-            print(form.errors)
             form.save() 
-            print(form.errors) 
             messages.success(request, "Client created successfully")
             return redirect('client-dashboard')  
+        else:
+            for field, errors in form.errors.items():
+                for error in errors:
+                    messages.error(request, f"{field}: {error}")
     else:
         form = ClientCreationForm()
     return render(request, 'clients/create_client.html', {'form': form})
 
+@login_required
 def client_dashboard_view(request):
     """
     View function for the client dashboard.
@@ -64,7 +69,7 @@ def client_dashboard_view(request):
     
     return render(request, 'clients/client_dashboard.html', {'clients': clients})
 
-
+@login_required
 def client_update_view(request, client_id):
     """
     Update the client information.
@@ -80,7 +85,7 @@ def client_update_view(request, client_id):
         Http404: If the client with the specified ID does not exist.
 
     """
-    if not request.user.is_admin:
+    if not request.user.is_core_admin:
         return redirect('client-dashboard')
 
     client = get_object_or_404(Client, id=client_id)
@@ -104,6 +109,7 @@ def client_update_view(request, client_id):
 
     return render(request, 'clients/client_dashboard.html', {'form': form})
 
+@login_required
 def get_client_details(request, client_id):
     """
     Retrieve the details of a client based on the provided client_id.
@@ -123,11 +129,12 @@ def get_client_details(request, client_id):
         'first_name': client.first_name,
         'last_name': client.last_name,
         'company': client.company,
-        'contact_email': client.contact_email,
+        'email': client.email,
         'contact_phone': client.contact_phone,
     }
     return JsonResponse(data)
 
+@login_required
 def client_details_view(request, client_id):
     """
     View function for displaying the details of a client.
