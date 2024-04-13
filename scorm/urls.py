@@ -1,6 +1,6 @@
 from django.urls import path, include
-from .views import test_dropdown
+from .views import get_all_scorms
 
 urlpatterns = [
-    path('test_dropdown/', test_dropdown, name='test_dropdown'),
+    path("get-all-scorms/", get_all_scorms, name="get-all-scorms"),
 ]

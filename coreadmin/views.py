@@ -4,6 +4,7 @@ from django.shortcuts import redirect, render
 
 from .forms import AdminLoginForm
 
+
 def admin_login_view(request):
     """
     View function for handling the admin login.
@@ -15,23 +16,26 @@ def admin_login_view(request):
         HttpResponse: The HTTP response object.
 
     """
-    if request.method == 'POST':
+    if request.method == "POST":
         form = AdminLoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
-            password = form.cleaned_data['password']
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
             user = authenticate(request, username=username, password=password)
             if user is not None:
-                if user.is_core_admin:  
+                if user.is_core_admin:
                     login(request, user)
-                    return redirect('scorm-dashboard')  
+                    return redirect("scorm-dashboard")
                 else:
-                    messages.error(request, "This account doesn't have admin permissions.")
+                    messages.error(
+                        request, "This account doesn't have admin permissions."
+                    )
             else:
-                messages.error(request, "Invalid username or password.") 
+                messages.error(request, "Invalid username or password.")
     else:
         form = AdminLoginForm()
-    return render(request, 'coreadmin/login.html', {'form': form})
+    return render(request, "coreadmin/login.html", {"form": form})
+
 
 def admin_logout_view(request):
     """
@@ -44,5 +48,4 @@ def admin_logout_view(request):
         HttpResponseRedirect: A redirect response to the admin login page.
     """
     logout(request)
-    return redirect('admin-login')
-
+    return redirect("admin-login")

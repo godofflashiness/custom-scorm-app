@@ -1,6 +1,7 @@
 from django.db import models
 from clients.models import Client
 
+
 class ScormAsset(models.Model):
     """
     Represents a SCORM asset.
@@ -18,17 +19,19 @@ class ScormAsset(models.Model):
         clients (ManyToManyField): The clients associated with the asset.
         scorm_file (FileField): The uploaded SCORM file.
     """
+
     title = models.CharField(max_length=200)
     description = models.TextField()
     category = models.CharField(max_length=50, blank=True)
-    duration = models.DurationField(blank=True, null=True)  
+    duration = models.DurationField(blank=True, null=True)
     upload_date = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
-    scorm_id = models.IntegerField(unique=True, null=True)    
-    scorm_file = models.FileField(upload_to='scorm_uploads_zipped/')
+    scorm_id = models.IntegerField(unique=True, null=True)
+    scorm_file = models.FileField(upload_to="scorm_uploads_zipped/")
 
     def __str__(self):
         return self.title
+
 
 class ScormResponse(models.Model):
     """
@@ -49,7 +52,10 @@ class ScormResponse(models.Model):
         scorm (str): The SCORM version.
 
     """
-    asset = models.OneToOneField(ScormAsset, on_delete=models.CASCADE, related_name='response')
+
+    asset = models.OneToOneField(
+        ScormAsset, on_delete=models.CASCADE, related_name="response"
+    )
     status = models.BooleanField(null=True)
     message = models.TextField(null=True)
     scormdir = models.TextField(null=True)
@@ -65,10 +71,11 @@ class ScormResponse(models.Model):
     def __str__(self):
         return self.asset.title
 
+
 class ScormAssignment(models.Model):
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     scorm_asset = models.ForeignKey(ScormAsset, on_delete=models.CASCADE)
-    date_assigned = models.DateTimeField(auto_now_add=True) 
+    date_assigned = models.DateTimeField(auto_now_add=True)
     number_of_seats = models.IntegerField(default=1)
-    validity_start_date = models.DateTimeField(blank=True, null=True)  
-    validity_end_date = models.DateTimeField(blank=True, null=True)  
+    validity_start_date = models.DateTimeField(blank=True, null=True)
+    validity_end_date = models.DateTimeField(blank=True, null=True)

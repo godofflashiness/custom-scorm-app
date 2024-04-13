@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 
@@ -6,18 +7,28 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import redirect, render, get_object_or_404
-from django.core.exceptions import ValidationError
-from django.http import HttpResponseBadRequest
+from django.core.exceptions import ValidationError, PermissionDenied
+from django.http import (
+    Http404,
+    HttpResponseBadRequest,
+    FileResponse,
+    HttpResponseForbidden,
+    HttpResponseNotFound,
+    HttpResponseServerError,
+)
 import requests
 
 from clients.models import Client
+from accounts.decorators import allowed_users
 
 from .forms import ScormUploadForm, AssignSCORMForm
 from .models import ScormAsset, ScormResponse, ScormAssignment
 
 logger = logging.getLogger(__name__)
 
+
 @login_required
+@allowed_users(allowed_roles=["coreadmin"])
 def upload_scorm_view(request):
     """
     View function for uploading a SCORM file.
@@ -35,89 +46,109 @@ def upload_scorm_view(request):
 
     """
     form = ScormUploadForm(request.POST or None, request.FILES or None)
-    if request.method == 'POST':
+    if request.method == "POST":
         if form.is_valid():
             asset = form.save(commit=False)
             try:
-                scorm_file = request.FILES['scorm_file']
+                scorm_file = request.FILES["scorm_file"]
 
                 if scorm_file.size > settings.MAX_UPLOAD_SIZE:
-                    raise ValidationError('File size exceeds the limit')
+                    raise ValidationError("File size exceeds the limit")
 
                 headers = {
-                    'Authorization': f'Bearer {settings.API_TOKEN1}',
+                    "Authorization": f"Bearer {settings.API_TOKEN1}",
                 }
 
                 data = {
-                    'file': scorm_file,
+                    "file": scorm_file,
                 }
 
-                response = requests.post(settings.API_URL, headers=headers, files=data, verify=True, timeout=20)
+                response = requests.post(
+                    settings.API_URL,
+                    headers=headers,
+                    files=data,
+                    verify=True,
+                    timeout=20,
+                )
 
-                response_data = None  
+                response_data = None
 
-                content_type = response.headers.get('content-type')
+                content_type = response.headers.get("content-type")
 
-                if content_type.startswith('application/json') or content_type.startswith('text/html'):
+                if content_type.startswith(
+                    "application/json"
+                ) or content_type.startswith("text/html"):
                     try:
-                        response_data = response.content.decode('utf-8')  
-                        response_data = json.loads(response_data)  
-                        logger.debug('Response: %s', json.dumps(response_data, indent=4))
+                        response_data = response.content.decode("utf-8")
+                        response_data = json.loads(response_data)
+                        logger.debug(
+                            "Response: %s", json.dumps(response_data, indent=4)
+                        )
                     except json.JSONDecodeError:
-                        logger.error('Error decoding JSON from response')
+                        logger.error("Error decoding JSON from response")
                         response_data = None
                 else:
-                    logger.debug('Response: %s', response.content)
+                    logger.debug("Response: %s", response.content)
 
-                if response.status_code == 200 and response_data is not None and response_data.get('status') is True:
-                    logger.info('File uploaded successfully')
+                if (
+                    response.status_code == 200
+                    and response_data is not None
+                    and response_data.get("status") is True
+                ):
+                    logger.info("File uploaded successfully")
 
-                    scorm_id = response_data.get('scorm')
+                    scorm_id = response_data.get("scorm")
                     if scorm_id is not None:
                         try:
                             asset.scorm_id = int(scorm_id)
-                            asset.save() 
+                            asset.save()
 
                             try:
                                 ScormResponse.objects.create(
                                     asset=asset,
-                                    status=response_data.get('status'),
-                                    message=response_data.get('message'),
-                                    scormdir=response_data.get('scormdir'),
-                                    full_path_name=response_data.get('full_path_name'),
-                                    size=response_data.get('size'),
-                                    zippath=response_data.get('zippath'),
-                                    zipfilename=response_data.get('zipfilename'),
-                                    extension=response_data.get('extension'),
-                                    filename=response_data.get('filename'),
-                                    reference=response_data.get('reference'),
-                                    scorm=response_data.get('scorm'),
+                                    status=response_data.get("status"),
+                                    message=response_data.get("message"),
+                                    scormdir=response_data.get("scormdir"),
+                                    full_path_name=response_data.get("full_path_name"),
+                                    size=response_data.get("size"),
+                                    zippath=response_data.get("zippath"),
+                                    zipfilename=response_data.get("zipfilename"),
+                                    extension=response_data.get("extension"),
+                                    filename=response_data.get("filename"),
+                                    reference=response_data.get("reference"),
+                                    scorm=response_data.get("scorm"),
                                 )
-                                logger.info('ScormResponse object created successfully')
+                                logger.info("ScormResponse object created successfully")
                             except Exception as e:
-                                logger.exception('Error creating ScormResponse object: %s', e)
+                                logger.exception(
+                                    "Error creating ScormResponse object: %s", e
+                                )
                                 raise
                         except ValueError:
-                            logger.error('scorm_id cannot be converted to an integer')
+                            logger.error("scorm_id cannot be converted to an integer")
                             raise
                     else:
-                        logger.error('scorm_id is None')
-                        raise ValueError('scorm_id is None')
+                        logger.error("scorm_id is None")
+                        raise ValueError("scorm_id is None")
                 else:
-                    logger.error('Failed to upload file. Status code: %s', response.status_code)
+                    logger.error(
+                        "Failed to upload file. Status code: %s", response.status_code
+                    )
                     if response_data is not None:
-                        logger.error('Response: %s', response.text)
-                    raise Exception('Failed to upload file')
+                        logger.error("Response: %s", response.text)
+                    raise Exception("Failed to upload file")
 
-                return redirect('scorm-dashboard')  
+                return redirect("scorm-dashboard")
             except Exception as e:
-                logger.exception('An error occurred:')
-                return HttpResponseBadRequest('An error occurred during file upload')
+                logger.exception("An error occurred:")
+                return HttpResponseBadRequest("An error occurred during file upload")
         else:
-            logger.debug('Form errors: %s', form.errors.as_json())
-            return HttpResponseBadRequest('Invalid form data')
-    return render(request, 'scorm/upload_scorm.html', {'form': form})
+            logger.debug("Form errors: %s", form.errors.as_json())
+            return HttpResponseBadRequest("Invalid form data")
+    return render(request, "scorm/upload_scorm.html", {"form": form})
 
+@login_required
+@allowed_users(allowed_roles=["coreadmin"])
 def scorm_dashboard_view(request):
     """
     Renders the SCORM dashboard view.
@@ -135,41 +166,119 @@ def scorm_dashboard_view(request):
         ObjectDoesNotExist: If there is an error fetching the SCORM assets from the database.
     """
     if not request.user.is_authenticated:
-        return redirect('admin-login')
-    
+        return redirect("admin-login")
+
     try:
         scorms = ScormAsset.objects.all()
     except ObjectDoesNotExist:
         messages.error(request, "Error fetching scorms")
         scorms = None
-    return render(request, 'scorm/scorm-dashboard.html', {'scorms': scorms})
+    return render(request, "scorm/scorm-dashboard.html", {"scorms": scorms})
 
 
-def test_dropdown(request):
-    scorms = ScormAsset.objects.all()
-    form = AssignSCORMForm()
-    return render(request, 'scorm/test_dropdown.html', {'scorms': scorms, 'form': form})
+@login_required
+@allowed_users(allowed_roles=["coreadmin"])
+def get_all_scorms(request):
+    """
+    Retrieve all SCORM assets and render them in the 'get_all_scorms.html' template.
 
-def assign_scorm(request, client_id):
-    client = get_object_or_404(Client, pk=client_id)
-    if request.method == 'POST':
-        form = AssignSCORMForm(request.POST)
-        if form.is_valid():
-            client = Client.objects.get(pk=client_id)  
-            selected_scorms = form.cleaned_data['scorms']
-            number_of_seats = form.cleaned_data['number_of_seats']
+    Args:
+        request (HttpRequest): The HTTP request object.
 
-            for scorm in selected_scorms:
-                assignment = ScormAssignment(
-                    scorm_asset=scorm,
-                    client=client,
-                    number_of_seats=number_of_seats
-                )
-                assignment.save()
+    Returns:
+        HttpResponse: The HTTP response object containing the rendered template.
 
-            print(f'Successfully saved ScormAssignment for client_id={client_id}')  
+    Raises:
+        None
 
-            return redirect('client-details', client_id=client_id) 
-    else:
+    """
+    try:
+        scorms = ScormAsset.objects.all()
         form = AssignSCORMForm()
-    return render(request, 'clients/client_details.html', {'form': form, 'client': client}) 
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+        scorms = []
+        form = None
+    return render(request, "scorm/get_all_scorms.html", {"scorms": scorms, "form": form})
+
+
+@login_required
+@allowed_users(allowed_roles=["coreadmin"])
+def assign_scorm(request, client_id):
+    """
+    Assigns a SCORM package to a client.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        client_id (int): The ID of the client.
+
+    Returns:
+        HttpResponse: The HTTP response.
+
+    Raises:
+        Http404: If the client with the specified ID does not exist.
+    """
+    client = get_object_or_404(Client, pk=client_id)
+    form = None
+    try:
+        if request.method == "POST":
+            form = AssignSCORMForm(request.POST)
+            if form.is_valid():
+                form.save(client)
+                print(f"Successfully saved ScormAssignment for client_id={client_id}")
+                return redirect("client-details", client_id=client_id)
+        else:
+            form = AssignSCORMForm()
+    except Exception as e:
+        messages.error(request, f"An error occurred: {str(e)}")
+    return render(
+        request, "clients/client_details.html", {"form": form, "client": client}
+    )
+
+@login_required
+@allowed_users(allowed_roles=["coreadmin", "clientadmin"])
+def download_scorm(request, client_id, scorm_id):
+    """
+    Download a SCORM file for a specific client.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        client_id (int): The ID of the client.
+        scorm_id (int): The ID of the SCORM asset.
+
+    Returns:
+        HttpResponse: The HTTP response containing the SCORM file as an attachment.
+
+    Raises:
+        PermissionDenied: If the client does not have access to the SCORM.
+        Http404: If the SCORM file is not found.
+        Exception: If any other error occurs.
+    """
+    try:
+        client = get_object_or_404(Client, pk=client_id)
+        scorm = get_object_or_404(ScormAsset, pk=scorm_id)
+
+        if not ScormAssignment.objects.filter(
+            client=client, scorm_asset=scorm
+        ).exists():
+            raise PermissionDenied("You do not have access to this SCORM")
+
+        file_path = scorm.scorm_file.path
+
+        if not os.path.exists(file_path):
+            raise Http404("File not found")
+
+        file = open(file_path, "rb")
+        response = FileResponse(file, content_type="application/zip")
+        response["Content-Disposition"] = (
+            f'attachment; filename="{scorm.scorm_file.name}"'
+        )
+
+        return response
+
+    except PermissionDenied as e:
+        return HttpResponseForbidden(str(e))
+    except Http404 as e:
+        return HttpResponseNotFound(str(e))
+    except Exception as e:
+        return HttpResponseServerError(str(e))
