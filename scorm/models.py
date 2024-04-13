@@ -23,10 +23,8 @@ class ScormAsset(models.Model):
     category = models.CharField(max_length=50, blank=True)
     duration = models.DurationField(blank=True, null=True)  
     upload_date = models.DateTimeField(auto_now_add=True)
-    access_validity_period = models.IntegerField(default=365, blank=True)  
     is_deleted = models.BooleanField(default=False)
     scorm_id = models.IntegerField(unique=True, null=True)    
-    clients = models.ManyToManyField(Client) 
     scorm_file = models.FileField(upload_to='scorm_uploads_zipped/')
 
     def __str__(self):
@@ -72,3 +70,5 @@ class ScormAssignment(models.Model):
     scorm_asset = models.ForeignKey(ScormAsset, on_delete=models.CASCADE)
     date_assigned = models.DateTimeField(auto_now_add=True) 
     number_of_seats = models.IntegerField(default=1)
+    validity_start_date = models.DateTimeField(blank=True, null=True)  
+    validity_end_date = models.DateTimeField(blank=True, null=True)  
