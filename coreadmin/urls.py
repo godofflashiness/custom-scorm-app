@@ -22,7 +22,7 @@ urlpatterns = [
     ),
     path(
         "client-details/<int:client_id>/",
-        client_views.client_details_view,
+        client_views.client_details_view_for_coreadmin,
         name="client-details",
     ),
     path(

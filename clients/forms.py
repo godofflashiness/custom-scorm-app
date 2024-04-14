@@ -38,8 +38,8 @@ class ClientCreationForm(forms.ModelForm):
     def save(self, commit=True):
         user = CustomUser.objects.create_user(
             self.cleaned_data["username"],
-            self.cleaned_data["password1"],
             self.cleaned_data["email"],
+            self.cleaned_data["password1"],
             first_name=self.cleaned_data["first_name"],
             last_name=self.cleaned_data["last_name"],
         )
@@ -69,3 +69,7 @@ class ClientUpdateForm(forms.ModelForm):
             user.save()
             client.save()
         return client
+
+class ClientLoginForm(forms.Form):
+    username = forms.CharField(max_length=150)
+    password = forms.CharField(widget=forms.PasswordInput)

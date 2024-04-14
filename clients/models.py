@@ -16,7 +16,7 @@ class Client(models.Model):
         scorm_count (int): The number of SCORM objects associated with the client.
     """
 
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True
     )
 

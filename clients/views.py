@@ -3,13 +3,18 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth import authenticate, login, logout
+from django.core.exceptions import PermissionDenied
 
 from scorm.models import ScormAssignment
 from accounts.decorators import allowed_users
 
-from .forms import ClientCreationForm, ClientUpdateForm
+from .forms import ClientCreationForm, ClientUpdateForm, ClientLoginForm
 from .models import Client
 
+import logging
+
+logger = logging.getLogger(__name__)
 
 @login_required
 @allowed_users(allowed_roles=["coreadmin"])
@@ -143,7 +148,8 @@ def get_client_details(request, client_id):
 
 
 @login_required
-def client_details_view(request, client_id):
+@allowed_users(allowed_roles=["coreadmin"])
+def client_details_view_for_coreadmin(request, client_id):
     """
     View function for displaying the details of a client.
 
@@ -165,3 +171,80 @@ def client_details_view(request, client_id):
         "clients/client_details.html",
         {"client": client, "assignments": assignments},
     )
+
+@login_required
+@allowed_users(allowed_roles=["clientadmin"])
+def client_details_view_for_clientadmin(request, client_id):
+    """
+    View function for displaying the details of a client.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        client_id (int): The ID of the client to display details for.
+
+    Returns:
+        HttpResponse: The HTTP response object containing the rendered template.
+
+    Raises:
+        Http404: If the client with the specified ID does not exist.
+        PermissionDenied: If the logged-in user is not allowed to view the client's details.
+
+    """
+    client = get_object_or_404(Client, id=client_id)
+    
+    if request.user.client.id != client.id:
+        raise PermissionDenied
+    
+    assignments = ScormAssignment.objects.filter(client=client)
+    return render(
+        request,
+        "clients/client_details_for_clientadmin.html",
+        {"client": client, "assignments": assignments},
+    )
+
+def client_login_view(request):
+    """
+    View function for handling the client login.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object.
+
+    """
+    if request.user.is_authenticated and request.user.is_client_admin:
+        return redirect("client-details-clientadmin", client_id=request.user.client.id)
+    
+    if request.method == "POST":
+        form = ClientLoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data["username"]
+            password = form.cleaned_data["password"]
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                if user.is_client_admin:
+                    login(request, user)
+                    return redirect("client-details-clientadmin", client_id=user.client.id)
+                else:
+                    messages.error(
+                        request, "This account doesn't have client admin permissions."
+                    )
+            else:
+                messages.error(request, "Invalid username or password.")
+    else:
+        form = ClientLoginForm()
+    return render(request, "clients/login.html", {"form": form})
+
+def client_logout_view(request):
+    """
+    Logs out the client user and redirects to the client login page.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponseRedirect: A redirect response to the client login page.
+    """
+    logout(request)
+    return redirect("client-login")
