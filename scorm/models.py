@@ -79,3 +79,5 @@ class ScormAssignment(models.Model):
     number_of_seats = models.IntegerField(default=1)
     validity_start_date = models.DateTimeField(blank=True, null=True)
     validity_end_date = models.DateTimeField(blank=True, null=True)
+    client_scorm_file = models.FileField(upload_to='client_scorm_files/', null=True, blank=True)  
+    

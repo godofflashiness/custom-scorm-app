@@ -10,12 +10,14 @@ from django.shortcuts import redirect, render, get_object_or_404
 from django.core.exceptions import ValidationError, PermissionDenied
 from django.http import (
     Http404,
+    HttpResponse,
     HttpResponseBadRequest,
     FileResponse,
     HttpResponseForbidden,
     HttpResponseNotFound,
     HttpResponseServerError,
 )
+
 import requests
 
 from clients.models import Client
@@ -224,12 +226,14 @@ def assign_scorm(request, client_id):
         if request.method == "POST":
             form = AssignSCORMForm(request.POST)
             if form.is_valid():
+                logger.info("Form is valid. Saving...")
                 form.save(client)
-                print(f"Successfully saved ScormAssignment for client_id={client_id}")
+                logger.info(f"Successfully saved ScormAssignment for client_id={client_id}")
                 return redirect("client-details", client_id=client_id)
         else:
-            form = AssignSCORMForm()
+            form = AssignSCORMForm(initial={'client': client})
     except Exception as e:
+        logger.error(f"An error occurred: {str(e)}")
         messages.error(request, f"An error occurred: {str(e)}")
     return render(
         request, "clients/client_details.html", {"form": form, "client": client}
@@ -238,47 +242,28 @@ def assign_scorm(request, client_id):
 @login_required
 @allowed_users(allowed_roles=["coreadmin", "clientadmin"])
 def download_scorm(request, client_id, scorm_id):
-    """
-    Download a SCORM file for a specific client.
-
-    Args:
-        request (HttpRequest): The HTTP request object.
-        client_id (int): The ID of the client.
-        scorm_id (int): The ID of the SCORM asset.
-
-    Returns:
-        HttpResponse: The HTTP response containing the SCORM file as an attachment.
-
-    Raises:
-        PermissionDenied: If the client does not have access to the SCORM.
-        Http404: If the SCORM file is not found.
-        Exception: If any other error occurs.
-    """
     try:
         client = get_object_or_404(Client, pk=client_id)
         scorm = get_object_or_404(ScormAsset, pk=scorm_id)
 
-        if not ScormAssignment.objects.filter(
+        assignment = ScormAssignment.objects.filter(
             client=client, scorm_asset=scorm
-        ).exists():
+        ).first()
+
+        if not assignment:
             raise PermissionDenied("You do not have access to this SCORM")
 
-        file_path = scorm.scorm_file.path
-
-        if not os.path.exists(file_path):
+        if not os.path.exists(assignment.client_scorm_file.path):
             raise Http404("File not found")
 
-        file = open(file_path, "rb")
-        response = FileResponse(file, content_type="application/zip")
-        response["Content-Disposition"] = (
-            f'attachment; filename="{scorm.scorm_file.name}"'
-        )
-
-        return response
-
-    except PermissionDenied as e:
-        return HttpResponseForbidden(str(e))
-    except Http404 as e:
-        return HttpResponseNotFound(str(e))
+        file = open(assignment.client_scorm_file.path, "rb")
+    except (Http404, PermissionDenied):
+        raise
     except Exception as e:
-        return HttpResponseServerError(str(e))
+        return HttpResponse(f"An error occurred: {str(e)}", status=500)
+
+    response = FileResponse(file, content_type="application/zip")
+    filename = f"{client.first_name}_{scorm.title}.zip"  
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+
+    return response

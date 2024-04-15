@@ -166,3 +166,5 @@ LOGGING = {
 }
 
 MAX_UPLOAD_SIZE = 2147483648
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'

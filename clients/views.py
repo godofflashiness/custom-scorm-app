@@ -1,14 +1,14 @@
 from django.contrib import messages
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from django.core.exceptions import PermissionDenied
 
 from scorm.models import ScormAssignment
 from accounts.decorators import allowed_users
 
+from .tasks import user_logged_in_task, user_logged_out_task
 from .forms import ClientCreationForm, ClientUpdateForm, ClientLoginForm
 from .models import Client
 
@@ -225,6 +225,7 @@ def client_login_view(request):
             if user is not None:
                 if user.is_client_admin:
                     login(request, user)
+                    user_logged_in_task.delay(user.id)
                     return redirect("client-details-clientadmin", client_id=user.client.id)
                 else:
                     messages.error(
@@ -246,5 +247,7 @@ def client_logout_view(request):
     Returns:
         HttpResponseRedirect: A redirect response to the client login page.
     """
+    user_id = request.user.id
     logout(request)
+    user_logged_out_task.delay(user_id)
     return redirect("client-login")
