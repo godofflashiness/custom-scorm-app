@@ -10,7 +10,7 @@ from accounts.decorators import allowed_users
 
 from .tasks import user_logged_in_task, user_logged_out_task
 from .forms import ClientCreationForm, ClientUpdateForm, ClientLoginForm
-from .models import Client
+from .models import Client, ClientUser
 
 import logging
 
@@ -143,6 +143,7 @@ def get_client_details(request, client_id):
         "company": client.company,
         "email": client.email,
         "contact_phone": client.contact_phone,
+        "domains": client.domains,
     }
     return JsonResponse(data)
 
@@ -251,3 +252,39 @@ def client_logout_view(request):
     logout(request)
     user_logged_out_task.delay(user_id)
     return redirect("client-login")
+
+
+@login_required
+@allowed_users(allowed_roles=["coreadmin"])
+def users_list_for_coreadmin(request, client_id):
+    """
+    View function for displaying the list of users associated with a specific client.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+        client_id (int): The ID of the client.
+
+    Returns:
+        HttpResponse: The HTTP response object containing the rendered template.
+
+    """
+    client = get_object_or_404(Client, id=client_id)
+    users = ClientUser.objects.filter(client_id=client_id)
+    return render(request, "clients/users_coreadmin.html", {"users": users, "client": client})
+
+@login_required
+@allowed_users(allowed_roles=["clientadmin"])
+def users_list_for_clientadmin(request, client_id):
+    """
+    View function for displaying the list of users associated with the client admin.
+
+    Args:
+        request (HttpRequest): The HTTP request object.
+
+    Returns:
+        HttpResponse: The HTTP response object containing the rendered template.
+
+    """
+    client = get_object_or_404(Client, id=client_id)
+    users = ClientUser.objects.filter(client_id=client_id)
+    return render(request, "clients/users_clientadmin.html", {"users": users, "client": client})

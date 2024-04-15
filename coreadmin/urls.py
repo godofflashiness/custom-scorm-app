@@ -37,4 +37,6 @@ urlpatterns = [
         scorm_views.download_scorm,
         name="download-scorm",
     ),
+    
+    path('client-details/<int:client_id>/users/', client_views.users_list_for_coreadmin, name='users-list-for-coreadmin'),
 ]

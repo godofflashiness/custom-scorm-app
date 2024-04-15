@@ -25,6 +25,7 @@ class ClientCreationForm(forms.ModelForm):
             "email",
             "contact_phone",
             "company",
+            "domains",
         ]
 
     def clean(self):
@@ -57,7 +58,7 @@ class ClientCreationForm(forms.ModelForm):
 class ClientUpdateForm(forms.ModelForm):
     class Meta:
         model = Client
-        fields = ["first_name", "last_name", "email", "contact_phone", "company"]
+        fields = ["first_name", "last_name", "email", "contact_phone", "company", "domains"]
 
     def save(self, commit=True):
         client = super().save(commit=False)

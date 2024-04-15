@@ -10,12 +10,13 @@
     >
       <span
         class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
-        >Flowbite</span
+        >SCORMHub</span
       >
     </a>
     <div
       class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse"
     >
+    <div class="mr-2"><p> Admin: {{ request.user.first_name }} {{ request.user.last_name }}</p></div>
       <button
         type="button"
         class="flex text-sm bg-white-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"

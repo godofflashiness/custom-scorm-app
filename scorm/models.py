@@ -1,5 +1,5 @@
 from django.db import models
-from clients.models import Client
+from clients.models import Client, ClientUser
 
 
 class ScormAsset(models.Model):
@@ -81,3 +81,6 @@ class ScormAssignment(models.Model):
     validity_end_date = models.DateTimeField(blank=True, null=True)
     client_scorm_file = models.FileField(upload_to='client_scorm_files/', null=True, blank=True)  
     
+class UserScormMapping(models.Model):
+    user = models.ForeignKey(ClientUser, on_delete=models.CASCADE)
+    assignment = models.ForeignKey(ScormAssignment, on_delete=models.CASCADE)
