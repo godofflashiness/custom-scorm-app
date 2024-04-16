@@ -102,7 +102,13 @@ def upload_scorm_view(request):
                     scorm_id = response_data.get("scorm")
                     if scorm_id is not None:
                         try:
-                            asset.scorm_id = int(scorm_id)
+                            scorm_id = int(scorm_id)
+
+                            if ScormResponse.objects.filter(scorm=scorm_id).exists():
+                                logger.error("A SCORM file with the same ID already exists")
+                                return HttpResponseBadRequest("A SCORM file with the same ID already exists")
+                            
+                            asset.scorm_id = scorm_id
                             asset.save()
 
                             try:

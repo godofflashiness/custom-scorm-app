@@ -214,6 +214,7 @@ def client_login_view(request):
         HttpResponse: The HTTP response object.
 
     """
+    
     if request.user.is_authenticated and request.user.is_client_admin:
         return redirect("client-details-clientadmin", client_id=request.user.client.id)
     
@@ -268,9 +269,19 @@ def users_list_for_coreadmin(request, client_id):
         HttpResponse: The HTTP response object containing the rendered template.
 
     """
-    client = get_object_or_404(Client, id=client_id)
-    users = ClientUser.objects.filter(client_id=client_id)
+    try:
+        client = get_object_or_404(Client, id=client_id)
+        users = ClientUser.objects.filter(client_id=client_id)
+        messages.success(request, 'Users fetched successfully.')
+    except Client.DoesNotExist:
+        messages.error(request, 'Client does not exist.')
+        return redirect(request.META.get('HTTP_REFERER', 'default_if_referer_not_found'))
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect(request.META.get('HTTP_REFERER', 'default_if_referer_not_found'))
+
     return render(request, "clients/users_coreadmin.html", {"users": users, "client": client})
+
 
 @login_required
 @allowed_users(allowed_roles=["clientadmin"])
@@ -285,6 +296,15 @@ def users_list_for_clientadmin(request, client_id):
         HttpResponse: The HTTP response object containing the rendered template.
 
     """
-    client = get_object_or_404(Client, id=client_id)
-    users = ClientUser.objects.filter(client_id=client_id)
+    try:
+        client = get_object_or_404(Client, id=client_id)
+        users = ClientUser.objects.filter(client_id=client_id)
+        messages.success(request, 'Users fetched successfully.')
+    except Client.DoesNotExist:
+        messages.error(request, 'Client does not exist.')
+        return redirect(request.META.get('HTTP_REFERER', 'default_if_referer_not_found'))
+    except Exception as e:
+        messages.error(request, f'An error occurred: {str(e)}')
+        return redirect(request.META.get('HTTP_REFERER', 'default_if_referer_not_found'))
+
     return render(request, "clients/users_clientadmin.html", {"users": users, "client": client})

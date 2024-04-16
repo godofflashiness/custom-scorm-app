@@ -86,11 +86,11 @@ WSGI_APPLICATION = 'my_scorm_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('DATABASE_NAME'),
-        'USER': os.getenv('DATABASE_USER'),
-        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-        'HOST': os.getenv('DATABASE_HOST'),
-        'PORT': os.getenv('DATABASE_PORT'),
+        'NAME': 'scorm_db',
+        'USER': 'pulcova',
+        'PASSWORD': 'Priuu@@##5577',
+        'HOST': 'db',
+        'PORT': 5432,
     }
 }
 
@@ -167,4 +167,8 @@ LOGGING = {
 
 MAX_UPLOAD_SIZE = 2147483648
 
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/0'
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
+
+SESSION_COOKIE_AGE = 1200 
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True

@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build: .  # Path to your Dockerfile
+    command: >
+      bash -c "python manage.py makemigrations &&
+               python manage.py migrate &&
+               python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - .:/app  # Mount your project code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    restart: always
+
+  db:
+    image: postgres:12-alpine
+    environment:
+      - POSTGRES_DB=scorm_db
+      - POSTGRES_USER=pulcova
+      - POSTGRES_PASSWORD=Priuu@@##5577
+    restart: always
+
+  redis:
+    image: redis:alpine
+    restart: always
+
+  celery:
+    build: .
+    command: celery -A my_scorm_project worker -l INFO
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+    restart: always

@@ -16,6 +16,9 @@ def admin_login_view(request):
         HttpResponse: The HTTP response object.
 
     """
+    if request.user.is_authenticated and request.user.is_core_admin:
+        return redirect("scorm-dashboard")
+    
     if request.method == "POST":
         form = AdminLoginForm(request.POST)
         if form.is_valid():
