@@ -50,6 +50,7 @@ class AssignSCORMForm(forms.ModelForm):
             response = ScormResponse.objects.get(asset=scorm)
             
             encrypted_id = encrypt_data(client.id, response.scorm)
+            logger.info(f"Encrypted ID: {encrypted_id}")
             client_specific_data = {
                 'id': encrypted_id,
                 'scorm_title': scorm.title

@@ -40,7 +40,7 @@ class ClientUser(models.Model):
     scorm_consumed = models.IntegerField(default=0)
     learner_id = models.CharField(max_length=255)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
-    scorm_user_id = models.CharField(max_length=255, null=True, blank=True)
+    cloudscorm_user_id = models.CharField(max_length=255, null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     

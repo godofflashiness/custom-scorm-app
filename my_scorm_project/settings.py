@@ -47,6 +47,9 @@ INSTALLED_APPS = [
     'clients',
     'scorm',
     'coreadmin',
+    'api',
+    'rest_framework',
+    'drf_yasg',
 ]
 
 MIDDLEWARE = [
@@ -89,8 +92,7 @@ DATABASES = {
         'NAME': 'scorm_db',
         'USER': 'pulcova',
         'PASSWORD': 'Priuu@@##5577',
-        'HOST': 'db',
-        'PORT': 5432,
+        'HOST': 'localhost',
     }
 }
 
@@ -170,5 +172,5 @@ MAX_UPLOAD_SIZE = 2147483648
 CELERY_BROKER_URL = 'redis://redis:6379/0'
 CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
-SESSION_COOKIE_AGE = 1200 
+SESSION_COOKIE_AGE = 12000 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True

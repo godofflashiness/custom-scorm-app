@@ -12,7 +12,7 @@ key = Fernet.generate_key()
 
 def encrypt_data(client_id, scorm):
     cipher_suite = Fernet(key)
-    data = (str(client_id) + str(scorm)).encode()
+    data = (str(client_id) + '-' + str(scorm)).encode()
     cipher_text = cipher_suite.encrypt(data)
     return cipher_text.decode() 
 

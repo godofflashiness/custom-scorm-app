@@ -19,7 +19,6 @@ class ScormAsset(models.Model):
         clients (ManyToManyField): The clients associated with the asset.
         scorm_file (FileField): The uploaded SCORM file.
     """
-
     title = models.CharField(max_length=200)
     description = models.TextField()
     category = models.CharField(max_length=50, blank=True)
@@ -52,7 +51,6 @@ class ScormResponse(models.Model):
         scorm (str): The SCORM version.
 
     """
-
     asset = models.OneToOneField(
         ScormAsset, on_delete=models.CASCADE, related_name="response"
     )

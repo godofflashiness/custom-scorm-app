@@ -25,4 +25,5 @@ urlpatterns = [
     path('clients/', include('clients.urls')),
     path('scorm/', include('scorm.urls')),
     path('coreadmin/', include('coreadmin.urls')),
+    path('api/', include('api.urls')),
 ]  + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
