@@ -10,7 +10,7 @@ from clients.models import Client
 logger = logging.getLogger(__name__)
 
 
-def check_assigned_scorm_validity(client_id, scorm_id):
+def check_assigned_scorm_validity(client_id, scorm_id) -> bool:
     # Get the client
     try:
         client = Client.objects.get(id=client_id)
@@ -32,7 +32,7 @@ def check_assigned_scorm_validity(client_id, scorm_id):
         return False
 
 
-def check_assigned_scorm_seats_limit(client_id, scorm_id):
+def check_assigned_scorm_seats_limit(client_id, scorm_id) -> bool:
     # Get the client
     try:
         client = Client.objects.get(id=client_id)
@@ -57,7 +57,7 @@ def check_assigned_scorm_seats_limit(client_id, scorm_id):
         return False
 
 
-def create_user_on_cloudscorm(learner_id, bearer_token, **kwargs):
+def create_user_on_cloudscorm(learner_id, bearer_token, **kwargs) -> dict:
     api_url = "https://cloudscorm.cloudnuv.com/user/signup"
     payload = {
         "email": learner_id + "@yopmail.com",
@@ -70,10 +70,8 @@ def create_user_on_cloudscorm(learner_id, bearer_token, **kwargs):
 
     try:
         response = requests.post(api_url, data=payload, headers=headers)
-        logger.info(f"CloudScorm User Creation Response: {response.json()}")
         response.raise_for_status()
         cloudscorm_user_data = response.json()
-        logger.info(f"CloudScorm User Data: {cloudscorm_user_data}")
 
         if cloudscorm_user_data["error"]:
             print(
@@ -88,7 +86,7 @@ def create_user_on_cloudscorm(learner_id, bearer_token, **kwargs):
         return None
 
 
-def construct_launch_url(scorm_id, cloudscorm_user_id):
+def construct_launch_url(scorm_id, cloudscorm_user_id) -> str:
     base_url = "https://cloudscorm.cloudnuv.com/course/"
     launch_url = f"{base_url}{scorm_id}/{cloudscorm_user_id}/online/0-0-0-0-0"
     return launch_url

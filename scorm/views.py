@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 @allowed_users(allowed_roles=["coreadmin"])
-def upload_scorm_view(request):
+def upload_scorm_view(request) -> HttpResponse:
     """
     View function for uploading a SCORM file.
 
@@ -70,7 +70,7 @@ def upload_scorm_view(request):
                     headers=headers,
                     files=data,
                     verify=True,
-                    timeout=20,
+                    timeout=100,
                 )
 
                 response_data = None
@@ -157,7 +157,7 @@ def upload_scorm_view(request):
 
 @login_required
 @allowed_users(allowed_roles=["coreadmin"])
-def scorm_dashboard_view(request):
+def scorm_dashboard_view(request) -> HttpResponse:
     """
     Renders the SCORM dashboard view.
 
@@ -186,7 +186,7 @@ def scorm_dashboard_view(request):
 
 @login_required
 @allowed_users(allowed_roles=["coreadmin"])
-def get_all_scorms(request):
+def get_all_scorms(request) -> HttpResponse:
     """
     Retrieve all SCORM assets and render them in the 'get_all_scorms.html' template.
 
@@ -212,7 +212,7 @@ def get_all_scorms(request):
 
 @login_required
 @allowed_users(allowed_roles=["coreadmin"])
-def assign_scorm(request, client_id):
+def assign_scorm(request, client_id) -> HttpResponse:
     """
     Assigns a SCORM package to a client.
 
@@ -247,7 +247,7 @@ def assign_scorm(request, client_id):
 
 @login_required
 @allowed_users(allowed_roles=["coreadmin", "clientadmin"])
-def download_scorm(request, client_id, scorm_id):
+def download_scorm(request, client_id, scorm_id) -> HttpResponse:
     try:
         client = get_object_or_404(Client, pk=client_id)
         scorm = get_object_or_404(ScormAsset, pk=scorm_id)
@@ -273,3 +273,8 @@ def download_scorm(request, client_id, scorm_id):
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
     return response
+
+@login_required
+@allowed_users(allowed_roles=["coreadmin", "clientadmin"])
+def download_scorm_via_api(request, client_id, scorm_id) -> HttpResponse:
+   pass

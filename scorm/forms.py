@@ -46,25 +46,26 @@ class AssignSCORMForm(forms.ModelForm):
                 validity_start_date=validity_start_date,
                 validity_end_date=validity_end_date,
             )
-            
+
             response = ScormResponse.objects.get(asset=scorm)
-            
+
             encrypted_id = encrypt_data(client.id, response.scorm)
             logger.info(f"Encrypted ID: {encrypted_id}")
-            client_specific_data = {
-                'id': encrypted_id,
-                'scorm_title': scorm.title
-            }
-            client_scorm_file_path = generate_client_scorm_file(scorm.scorm_file, client_specific_data)
-            
+            client_specific_data = {"id": encrypted_id, "scorm_title": scorm.title}
+            client_scorm_file_path = generate_client_scorm_file(
+                scorm.scorm_file, client_specific_data
+            )
+
             # Log the decrypted ID for verification
             decrypted_id = decrypt_data(encrypted_id)
             logger.info(f"Decrypted ID: {decrypted_id}")
-            
+
             # Save the client-specific SCORM file in the ScormAsset model
-            with open(client_scorm_file_path, 'rb') as client_scorm_file:
-                assignment.client_scorm_file.save(os.path.basename(client_scorm_file_path), File(client_scorm_file))
-            
+            with open(client_scorm_file_path, "rb") as client_scorm_file:
+                assignment.client_scorm_file.save(
+                    os.path.basename(client_scorm_file_path), File(client_scorm_file)
+                )
+
             if commit:
                 assignment.save()
                 scorm.save()  # Save the ScormAsset model after updating the scorm_file field

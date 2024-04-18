@@ -71,14 +71,33 @@ class ScormResponse(models.Model):
 
 
 class ScormAssignment(models.Model):
+    """
+    Represents a Scorm Assignment.
+
+    Attributes:
+        client (ForeignKey): The client associated with the assignment.
+        scorm_asset (ForeignKey): The Scorm asset associated with the assignment.
+        date_assigned (DateTimeField): The date and time when the assignment was created.
+        number_of_seats (IntegerField): The number of seats available for the assignment.
+        validity_start_date (DateTimeField): The start date and time of the assignment's validity period.
+        validity_end_date (DateTimeField): The end date and time of the assignment's validity period.
+        client_scorm_file (FileField): The uploaded Scorm file associated with the assignment.
+    """
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
     scorm_asset = models.ForeignKey(ScormAsset, on_delete=models.CASCADE)
     date_assigned = models.DateTimeField(auto_now_add=True)
     number_of_seats = models.IntegerField(default=1)
     validity_start_date = models.DateTimeField(blank=True, null=True)
     validity_end_date = models.DateTimeField(blank=True, null=True)
-    client_scorm_file = models.FileField(upload_to='client_scorm_files/', null=True, blank=True)  
+    client_scorm_file = models.FileField(upload_to='client_scorm_files/', null=True, blank=True)
+    
+    def __str__(self):
+        return f"{self.client} - {self.scorm_asset}"
     
 class UserScormMapping(models.Model):
+    """
+    Represents the mapping between a user and a SCORM assignment.
+    """
+
     user = models.ForeignKey(ClientUser, on_delete=models.CASCADE)
     assignment = models.ForeignKey(ScormAssignment, on_delete=models.CASCADE)

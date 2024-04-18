@@ -8,7 +8,7 @@ from django.contrib.auth import authenticate, login, logout
 from scorm.models import ScormAssignment
 from accounts.decorators import allowed_users
 
-from .tasks import user_logged_in_task, user_logged_out_task
+# from .tasks import user_logged_in_task, user_logged_out_task
 from .forms import ClientCreationForm, ClientUpdateForm, ClientLoginForm
 from .models import Client, ClientUser
 
@@ -227,7 +227,7 @@ def client_login_view(request):
             if user is not None:
                 if user.is_client_admin:
                     login(request, user)
-                    user_logged_in_task.delay(user.id)
+                    # user_logged_in_task.delay(user.id)
                     return redirect("client-details-clientadmin", client_id=user.client.id)
                 else:
                     messages.error(
@@ -251,7 +251,7 @@ def client_logout_view(request):
     """
     user_id = request.user.id
     logout(request)
-    user_logged_out_task.delay(user_id)
+    # user_logged_out_task.delay(user_id)
     return redirect("client-login")
 
 

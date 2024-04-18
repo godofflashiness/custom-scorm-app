@@ -53,6 +53,7 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    'honeybadger.contrib.DjangoHoneybadgerMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -174,3 +175,7 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
 SESSION_COOKIE_AGE = 12000 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+HONEYBADGER = {
+  'API_KEY': os.getenv('HONEYBADGER_API_KEY')
+}
