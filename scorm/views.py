@@ -273,8 +273,3 @@ def download_scorm(request, client_id, scorm_id) -> HttpResponse:
     response["Content-Disposition"] = f'attachment; filename="{filename}"'
 
     return response
-
-@login_required
-@allowed_users(allowed_roles=["coreadmin", "clientadmin"])
-def download_scorm_via_api(request, client_id, scorm_id) -> HttpResponse:
-   pass

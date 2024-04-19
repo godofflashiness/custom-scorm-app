@@ -29,7 +29,7 @@ class ScormAsset(models.Model):
     scorm_file = models.FileField(upload_to="scorm_uploads_zipped/")
 
     def __str__(self):
-        return self.title
+        return f"[{self.scorm_id}] {self.title}"
 
 
 class ScormResponse(models.Model):
@@ -67,7 +67,7 @@ class ScormResponse(models.Model):
     scorm = models.CharField(max_length=50, null=True)
 
     def __str__(self):
-        return self.asset.title
+        return f"Cloudscorm Response Data - {self.asset.title} - [{self.scorm}]"
 
 
 class ScormAssignment(models.Model):
@@ -92,7 +92,7 @@ class ScormAssignment(models.Model):
     client_scorm_file = models.FileField(upload_to='client_scorm_files/', null=True, blank=True)
     
     def __str__(self):
-        return f"{self.client} - {self.scorm_asset}"
+        return f"Client - {self.client} - {self.scorm_asset}"
     
 class UserScormMapping(models.Model):
     """
@@ -101,3 +101,6 @@ class UserScormMapping(models.Model):
 
     user = models.ForeignKey(ClientUser, on_delete=models.CASCADE)
     assignment = models.ForeignKey(ScormAssignment, on_delete=models.CASCADE)
+    
+    def __str__(self):
+        return f"User - {self.user} - Assignment - {self.assignment}"

@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.decorators import user_passes_test
 
 from scorm.models import ScormAssignment
 from accounts.decorators import allowed_users
@@ -11,6 +12,8 @@ from accounts.decorators import allowed_users
 # from .tasks import user_logged_in_task, user_logged_out_task
 from .forms import ClientCreationForm, ClientUpdateForm, ClientLoginForm
 from .models import Client, ClientUser
+from .utils import is_client_admin
+from coreadmin.utils import not_core_admin
 
 import logging
 
@@ -48,6 +51,7 @@ def create_client_view(request):
 
 
 @login_required
+@allowed_users(allowed_roles=["coreadmin"])
 def client_dashboard_view(request):
     """
     View function for the client dashboard.
@@ -78,6 +82,7 @@ def client_dashboard_view(request):
 
 
 @login_required
+@allowed_users(allowed_roles=["coreadmin"])
 def client_update_view(request, client_id):
     """
     Update the client information.
@@ -102,7 +107,7 @@ def client_update_view(request, client_id):
         if (
             "HTTP_X_REQUESTED_WITH" in request.META
             and request.META["HTTP_X_REQUESTED_WITH"] == "XMLHttpRequest"
-        ):  # Handle AJAX form submission
+        ):
             form = ClientUpdateForm(request.POST, instance=client)
             if form.is_valid():
                 form.save()
@@ -122,6 +127,7 @@ def client_update_view(request, client_id):
 
 
 @login_required
+@allowed_users(allowed_roles=["coreadmin"])
 def get_client_details(request, client_id):
     """
     Retrieve the details of a client based on the provided client_id.
@@ -203,6 +209,8 @@ def client_details_view_for_clientadmin(request, client_id):
         {"client": client, "assignments": assignments},
     )
 
+
+@user_passes_test(not_core_admin, login_url='admin-login')
 def client_login_view(request):
     """
     View function for handling the client login.
@@ -239,6 +247,7 @@ def client_login_view(request):
         form = ClientLoginForm()
     return render(request, "clients/login.html", {"form": form})
 
+@user_passes_test(is_client_admin, login_url='client-login')
 def client_logout_view(request):
     """
     Logs out the client user and redirects to the client login page.

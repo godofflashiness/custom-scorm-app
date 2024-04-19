@@ -1,123 +1,136 @@
-{% extends 'clients/base.html' %} 
+{% extends 'clients/base.html' %}
 {% block title %}Client Details{% endblock %}
-{% block content %} 
+{% block content %}
 
-<div
-  class="relative overflow-x-auto shadow-md sm:rounded-lg mx-auto mt-32 max-w-screen-xl"
->
-  <div
-    class="flex items-center justify-between flex-column md:flex-row flex-wrap space-y-4 md:space-y-0 py-4 bg-white dark:bg-gray-900"
-  >
-    <div>
-      <button
-        id="dropdownActionButton"
-        data-dropdown-toggle="dropdownAction"
-        class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
-        type="button"
-      >
-        <span class="sr-only">Action button</span>
-        Action
-        <svg
-          class="w-2.5 h-2.5 ms-2.5"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 10 6"
-        >
+<nav class="bg-white dark:bg-gray-900 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
+  <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+    <a href="{% url 'client-details-clientadmin' client_id=user.client.id %}"
+      class="flex items-center space-x-3 rtl:space-x-reverse">
+      <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">NuggetKrafters</span>
+    </a>
+    <div class="flex items-center md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
+      <div class="mr-2">
+        <p>Client: {{ client.first_name }} {{ client.last_name }}</p>
+      </div>
+      <button type="button"
+        class="flex text-sm bg-white-800 rounded-full md:me-0 focus:ring-4 focus:ring-gray-300 dark:focus:ring-gray-600"
+        id="user-menu-button" aria-expanded="false" data-dropdown-toggle="user-dropdown"
+        data-dropdown-placement="bottom">
+        <span class="sr-only">Open user menu</span>
+        <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="50" height="50" viewBox="0 0 50 50">
           <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m1 1 4 4 4-4"
-          />
+            d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 25 4 C 36.609824 4 46 13.390176 46 25 C 46 36.609824 36.609824 46 25 46 C 13.390176 46 4 36.609824 4 25 C 4 13.390176 13.390176 4 25 4 z M 25 10 A 1 1 0 0 0 24 11 A 1 1 0 0 0 25 12 A 1 1 0 0 0 26 11 A 1 1 0 0 0 25 10 z M 21 11 A 1 1 0 0 0 20 12 A 1 1 0 0 0 21 13 A 1 1 0 0 0 22 12 A 1 1 0 0 0 21 11 z M 29 11 A 1 1 0 0 0 28 12 A 1 1 0 0 0 29 13 A 1 1 0 0 0 30 12 A 1 1 0 0 0 29 11 z M 18 14 A 1 1 0 0 0 17 15 A 1 1 0 0 0 18 16 A 1 1 0 0 0 19 15 A 1 1 0 0 0 18 14 z M 32 14 A 1 1 0 0 0 31 15 A 1 1 0 0 0 32 16 A 1 1 0 0 0 33 15 A 1 1 0 0 0 32 14 z M 17 18 A 1 1 0 0 0 16 19 A 1 1 0 0 0 17 20 A 1 1 0 0 0 18 19 A 1 1 0 0 0 17 18 z M 33 18 A 1 1 0 0 0 32 19 A 1 1 0 0 0 33 20 A 1 1 0 0 0 34 19 A 1 1 0 0 0 33 18 z M 18 22 A 1 1 0 0 0 17 23 A 1 1 0 0 0 18 24 A 1 1 0 0 0 19 23 A 1 1 0 0 0 18 22 z M 32 22 A 1 1 0 0 0 31 23 A 1 1 0 0 0 32 24 A 1 1 0 0 0 33 23 A 1 1 0 0 0 32 22 z M 21 25 A 1 1 0 0 0 20 26 A 1 1 0 0 0 21 27 A 1 1 0 0 0 22 26 A 1 1 0 0 0 21 25 z M 29 25 A 1 1 0 0 0 28 26 A 1 1 0 0 0 29 27 A 1 1 0 0 0 30 26 A 1 1 0 0 0 29 25 z M 25 26 A 1 1 0 0 0 24 27 A 1 1 0 0 0 25 28 A 1 1 0 0 0 26 27 A 1 1 0 0 0 25 26 z M 19 28 A 1 1 0 0 0 18 29 A 1 1 0 0 0 19 30 A 1 1 0 0 0 20 29 A 1 1 0 0 0 19 28 z M 31 28 A 1 1 0 0 0 30 29 A 1 1 0 0 0 31 30 A 1 1 0 0 0 32 29 A 1 1 0 0 0 31 28 z M 15.75 29.873047 C 15.4975 29.835547 15.229766 29.895547 15.009766 30.060547 L 15 30.050781 C 14.56 30.380781 14.459062 31.009219 14.789062 31.449219 C 14.989063 31.719219 15.289609 31.859375 15.599609 31.859375 C 15.799609 31.859375 16.009453 31.799922 16.189453 31.669922 C 16.629453 31.339922 16.730391 30.709531 16.400391 30.269531 C 16.240391 30.044531 16.0025 29.910547 15.75 29.873047 z M 34.25 29.873047 C 33.997375 29.910547 33.759609 30.044531 33.599609 30.269531 C 33.269609 30.719531 33.371547 31.339922 33.810547 31.669922 C 33.990547 31.799922 34.200391 31.858375 34.400391 31.859375 C 34.711391 31.859375 35.010937 31.721172 35.210938 31.451172 C 35.540937 31.010172 35.439234 30.380547 34.990234 30.060547 C 34.769734 29.895547 34.502625 29.835547 34.25 29.873047 z M 12.679688 32.576172 C 12.425938 32.610047 12.184531 32.740938 12.019531 32.960938 C 11.688531 33.399937 11.770938 34.030375 12.210938 34.359375 C 12.390937 34.500375 12.599359 34.568359 12.818359 34.568359 C 13.119359 34.568359 13.420375 34.429922 13.609375 34.169922 C 13.950375 33.729922 13.858922 33.109531 13.419922 32.769531 C 13.199922 32.604031 12.933437 32.542297 12.679688 32.576172 z M 37.320312 32.576172 C 37.066688 32.542422 36.799578 32.604531 36.580078 32.769531 C 36.140078 33.099531 36.050625 33.729922 36.390625 34.169922 C 36.580625 34.429922 36.879688 34.568359 37.179688 34.568359 C 37.389688 34.568359 37.608063 34.500375 37.789062 34.359375 C 38.228062 34.030375 38.308516 33.399938 37.978516 32.960938 C 37.813516 32.740938 37.573937 32.609922 37.320312 32.576172 z M 11 36 A 1 1 0 0 0 10 37 A 1 1 0 0 0 11 38 A 1 1 0 0 0 12 37 A 1 1 0 0 0 11 36 z M 39 36 A 1 1 0 0 0 38 37 A 1 1 0 0 0 39 38 A 1 1 0 0 0 40 37 A 1 1 0 0 0 39 36 z">
+          </path>
         </svg>
       </button>
+      <!-- Dropdown menu -->
       <div
-        id="dropdownAction"
-        class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600"
-      >
-        <ul
-          class="py-1 text-sm text-gray-700 dark:text-gray-200"
-          aria-labelledby="dropdownActionButton"
-        >
+        class="z-50 hidden my-4 text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow dark:bg-gray-700 dark:divide-gray-600"
+        id="user-dropdown">
+        <div class="px-4 py-3">
+          <span class="block text-sm text-gray-900 dark:text-white">{{ request.user.client.first_name }} {{ request.user.client.last_name }}</span>
+          <span class="block text-sm text-gray-500 truncate dark:text-gray-400">{{ request.user.client.email }}</span>
+        </div>
+        <ul class="py-2" aria-labelledby="user-menu-button">
           <li>
-            <a
-              href="#"
-              type="button"
-              data-modal-target="editUserModal"
-              data-modal-show="editUserModal"
-              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >Download SCORM</a
-            >
+            <a href="{% url 'client-details-clientadmin' client_id=user.client.id %}"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Dashboard</a>
           </li>
           <li>
-            <a
-              href="#"
-              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-            ></a>
+            <a href="#"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Settings</a>
           </li>
           <li>
-            <a
-              href="#"
-              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >View SCORM</a
-            >
+            <a href="{% url 'client-logout' %}"
+              class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Sign
+              out</a>
+          </li>
+        </ul>
+      </div>
+      <button data-collapse-toggle="navbar-user" type="button"
+        class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600"
+        aria-controls="navbar-user" aria-expanded="false">
+        <span class="sr-only">Open main menu</span>
+        <svg class="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 17 14">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M1 1h15M1 7h15M1 13h15" />
+        </svg>
+      </button>
+    </div>
+    <div class="items-center justify-between hidden w-full md:flex md:w-auto md:order-1" id="navbar-user">
+      <ul
+        class="flex flex-col font-medium p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:space-x-8 rtl:space-x-reverse md:flex-row md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+        <li id="client-nav">
+          <a href="{% url 'client-details-clientadmin' client_id=user.client.id %}"
+          class="block py-2 px-3 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-blue-500 default-class" aria-current="page">SCROM</a>
+        </li>
+        <li id="client-nav">
+          <a href="{% url 'users-list-for-clientadmin' user.client.id %}"
+            class="block py-2 px-3 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700 default-class">Users</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg mx-auto mt-32 max-w-screen-xl">
+  <div class="flex flex-column sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between pb-4">
+    <div>
+      <button id="dropdownActionButton" data-dropdown-toggle="dropdownAction"
+        class="inline-flex items-center text-gray-500 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-3 py-1.5 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+        type="button">
+        <span class="sr-only">Action button</span>
+        Action
+        <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 10 6">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="m1 1 4 4 4-4" />
+        </svg>
+      </button>
+      <div id="dropdownAction"
+        class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
+        <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownActionButton">
+          <li>
+            <a href="#" type="button" data-modal-target="editUserModal" data-modal-show="editUserModal"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Download SCORM</a>
+          </li>
+          <li>
+            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"></a>
+          </li>
+          <li>
+            <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">View
+              SCORM</a>
           </li>
         </ul>
         <div class="py-1">
-          <a
-            href="#"
-            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
-            >Delete SCORM</a
-          >
+          <a href="#"
+            class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete
+            SCORM</a>
         </div>
       </div>
     </div>
 
     <label for="table-search" class="sr-only">Search</label>
     <div class="relative">
-      <div
-        class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none"
-      >
-        <svg
-          class="w-4 h-4 text-gray-500 dark:text-gray-400"
-          aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 20 20"
-        >
-          <path
-            stroke="currentColor"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-          />
+      <div class="absolute inset-y-0 rtl:inset-r-0 start-0 flex items-center ps-3 pointer-events-none">
+        <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+          fill="none" viewBox="0 0 20 20">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z" />
         </svg>
       </div>
-      <input
-        type="text"
-        id="table-search-users"
+      <input type="text" id="table-search-users"
         class="block pt-2 ps-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-        placeholder="Search for SCORMs"
-      />
+        placeholder="Search for SCORMs" />
     </div>
   </div>
-  <table
-    class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400"
-  >
-    <thead
-      class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
-    >
+  <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
+    <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
       <tr>
         <th scope="col" class="p-4">
           <div class="flex items-center">
-            <input
-              id="checkbox-all-search"
-              type="checkbox"
-              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            />
+            <input id="checkbox-all-search" type="checkbox"
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
             <label for="checkbox-all-search" class="sr-only">checkbox</label>
           </div>
         </th>
@@ -131,25 +144,15 @@
     </thead>
     <tbody>
       {% for assignment in assignments %}
-      <tr
-        class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600"
-      >
+      <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600">
         <td class="w-4 p-4">
           <div class="flex items-center">
-            <input
-              id="checkbox-table-search-1"
-              type="checkbox"
-              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-            />
-            <label for="checkbox-table-search-1" class="sr-only"
-              >checkbox</label
-            >
+            <input id="checkbox-table-search-1" type="checkbox"
+              class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
+            <label for="checkbox-table-search-1" class="sr-only">checkbox</label>
           </div>
         </td>
-        <th
-          scope="row"
-          class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white"
-        >
+        <th scope="row" class="px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white">
           {{ assignment.scorm_asset.title }}
         </th>
         <td class="px-6 py-4">{{ assignment.date_assigned }}</td>
@@ -157,21 +160,11 @@
         <td class="px-6 py-4">{{ assignment.number_of_seats }}</td>
         <td class="px-6 py-4">None</td>
         <td class="px-6 py-4">
-          <a
-            href="{% url 'download-scorm' client_id=client.id scorm_id=assignment.scorm_asset.id %}"
-            title="Download"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              x="0px"
-              y="0px"
-              width="32"
-              height="32"
-              viewBox="0 0 50 50"
-            >
+          <a href="{% url 'download-scorm' client_id=client.id scorm_id=assignment.scorm_asset.id %}" title="Download">
+            <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="32" height="32" viewBox="0 0 50 50">
               <path
-                d="M 24.90625 0.96875 C 24.863281 0.976563 24.820313 0.988281 24.78125 1 C 24.316406 1.105469 23.988281 1.523438 24 2 L 24 32.5625 L 17.71875 26.28125 C 17.476563 26.03125 17.121094 25.925781 16.78125 26 C 16.40625 26.066406 16.105469 26.339844 16 26.703125 C 15.894531 27.070313 16.003906 27.460938 16.28125 27.71875 L 24.28125 35.71875 L 25 36.40625 L 25.71875 35.71875 L 33.71875 27.71875 C 34.117188 27.320313 34.117188 26.679688 33.71875 26.28125 C 33.320313 25.882813 32.679688 25.882813 32.28125 26.28125 L 26 32.5625 L 26 2 C 26.011719 1.710938 25.894531 1.433594 25.6875 1.238281 C 25.476563 1.039063 25.191406 0.941406 24.90625 0.96875 Z M 7 16 L 7 50 L 43 50 L 43 16 L 33 16 C 32.640625 15.996094 32.304688 16.183594 32.121094 16.496094 C 31.941406 16.808594 31.941406 17.191406 32.121094 17.503906 C 32.304688 17.816406 32.640625 18.003906 33 18 L 41 18 L 41 48 L 9 48 L 9 18 L 17 18 C 17.359375 18.003906 17.695313 17.816406 17.878906 17.503906 C 18.058594 17.191406 18.058594 16.808594 17.878906 16.496094 C 17.695313 16.183594 17.359375 15.996094 17 16 Z"
-              ></path>
+                d="M 24.90625 0.96875 C 24.863281 0.976563 24.820313 0.988281 24.78125 1 C 24.316406 1.105469 23.988281 1.523438 24 2 L 24 32.5625 L 17.71875 26.28125 C 17.476563 26.03125 17.121094 25.925781 16.78125 26 C 16.40625 26.066406 16.105469 26.339844 16 26.703125 C 15.894531 27.070313 16.003906 27.460938 16.28125 27.71875 L 24.28125 35.71875 L 25 36.40625 L 25.71875 35.71875 L 33.71875 27.71875 C 34.117188 27.320313 34.117188 26.679688 33.71875 26.28125 C 33.320313 25.882813 32.679688 25.882813 32.28125 26.28125 L 26 32.5625 L 26 2 C 26.011719 1.710938 25.894531 1.433594 25.6875 1.238281 C 25.476563 1.039063 25.191406 0.941406 24.90625 0.96875 Z M 7 16 L 7 50 L 43 50 L 43 16 L 33 16 C 32.640625 15.996094 32.304688 16.183594 32.121094 16.496094 C 31.941406 16.808594 31.941406 17.191406 32.121094 17.503906 C 32.304688 17.816406 32.640625 18.003906 33 18 L 41 18 L 41 48 L 9 48 L 9 18 L 17 18 C 17.359375 18.003906 17.695313 17.816406 17.878906 17.503906 C 18.058594 17.191406 18.058594 16.808594 17.878906 16.496094 C 17.695313 16.183594 17.359375 15.996094 17 16 Z">
+              </path>
             </svg>
           </a>
         </td>
@@ -179,6 +172,6 @@
       {% endfor %}
     </tbody>
   </table>
-  </div>
+</div>
 </div>
 {% endblock %}

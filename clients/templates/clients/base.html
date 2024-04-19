@@ -10,11 +10,6 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
   </head>
   <body>
-    {% if user.is_authenticated %} 
-        {% include 'clients/navbar_one.html' %} 
-    {% else %} 
-        {% include 'clients/navbar_two.html' %} 
-    {% endif %} 
     {% block content %} {% endblock %}
     <script src="{% static 'dist/flowbite.js' %}"></script>
   </body>
